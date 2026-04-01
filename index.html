@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ứng dụng tính thuế TNCN</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="bg-layer1" class="bg-layer"></div>
+  <div id="bg-layer2" class="bg-layer"></div>
+  <div class="overlay"></div>
+
+  <main class="app-card" role="main" aria-label="Ứng dụng tính thuế TNCN">
+    <header class="app-header">
+      <div class="brand">
+        <img id="logoImg" src="Logo.jpg" alt="Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2748%27 height=%2748%27 viewBox=%270 0 48 48%27%3E%3Crect width=%2748%27 height=%2748%27 rx=%2710%27 ry=%2710%27 fill=%27%2300866d%27/%3E%3Ctext x=%2724%27 y=%2728%27 fill=%27%23ffffff%27 font-size=%2718%27 font-family=%27Inter, Arial, sans-serif%27 text-anchor=%27middle%27 alignment-baseline=%27middle%27%3ET%3C/text%3E%3C/svg%3E'; this.onerror=null;" />
+        <h1>Ứng dụng tính thuế TNCN</h1>
+      </div>
+      <div class="menu">
+        <select id="pageSelect" aria-label="Chọn mục">
+          <option value="tax" selected>Tính thuế</option>
+          <option value="guide">Hướng dẫn quyết toán</option>
+        </select>
+      </div>
+    </header>
+
+    <section class="section intro" id="sectionHome">
+      <p>Chọn chế độ luật và nhập các thông tin thu nhập, bảo hiểm, người phụ thuộc để tính thuế TNCN.</p>
+    </section>
+
+    <section class="section form-section" id="sectionTax">
+      <div class="field">
+        <label for="period">Chọn chế độ tính thuế</label>
+        <select id="period" aria-label="Chọn chế độ tính thuế">
+          <option value="2025">01/07/2025 – 31/12/2025</option>
+          <option value="2026">Từ 01/01/2026 (Mới nhất)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="income">Tổng thu nhập năm (VNĐ)</label>
+        <input type="number" id="income" min="0" step="1000" value="0" />
+      </div>
+
+      <div class="field">
+        <label for="companySalary">Lương công ty đóng BH (năm, VNĐ)</label>
+        <input type="number" id="companySalary" min="0" step="1000" value="0" placeholder="Nhập lương để tính BH tự động" />
+      </div>
+
+      <div class="field">
+        <label for="monthlyBH">Lương BH theo tháng (VNĐ)</label>
+        <input type="number" id="monthlyBH" min="0" step="1000" value="0" placeholder="Nhập lương đóng BH/ tháng" />
+      </div>
+
+      <div class="field">
+        <label for="insurance">Bảo hiểm đã đóng thực tế (VNĐ, để trống nếu muốn tính tự động)</label>
+        <input type="number" id="insurance" min="0" step="1000" placeholder="Nếu 0 thì dùng 10.5% lương công ty hoặc 12 tháng * lương BH" />
+      </div>
+
+      <div class="field">
+        <label for="dependent">Số người phụ thuộc</label>
+        <input type="number" id="dependent" min="0" step="1" value="0" />
+      </div>
+
+      <button id="calculateBtn">Tính thuế</button>
+    </section>
+
+    <section class="section result-section" id="resultSection">
+      <h2>Kết quả</h2>
+      <div id="result" class="result-box">Vui lòng nhập dữ liệu và nhấn Tính thuế.</div>
+    </section>
+
+    <section class="section history" id="historySection">
+      <h2>Lịch sử tính toán</h2>
+      <ul id="historyList" class="history-list"></ul>
+    </section>
+
+    <section class="section guide" id="sectionGuide" hidden>
+      <h2>Hướng dẫn quyết toán</h2>
+      <h3>1. Khi nào phải tự quyết toán thuế</h3>
+      <ul>
+        <li>Có thu nhập từ 2 nơi trở lên (song song hoặc nhảy việc, mỗi nơi hợp đồng ≥ 3 tháng).</li>
+        <li>Có số thuế nộp thừa (xác định hoàn thuế hoặc bù trừ kỳ sau).</li>
+        <li>Có số thuế nộp thiếu (năm thu nhập thực tế cao hơn tạm khấu trừ).</li>
+        <li>Có thu nhập vãng lai (cộng tác viên, hoa hồng) đã bị khấu trừ 10% tại nguồn.</li>
+        <li>Cá nhân cư trú có thu nhập từ nước ngoài.</li>
+      </ul>
+
+      <h3>2. Các mốc giảm trừ quan trọng (2026)</h3>
+      <ul>
+        <li>Cá nhân: 15.500.000/tháng → 186.000.000/năm.</li>
+        <li>Người phụ thuộc: 6.200.000/tháng → 74.400.000/năm.</li>
+      </ul>
+
+      <h3>3. Biểu thuế lũy tiến từng phần</h3>
+      <p><strong>2025 (đến 31/12/2025):</strong></p>
+      <table class="tax-table">
+        <thead><tr><th>Bậc</th><th>Thu nhập tính thuế/tháng</th><th>Thuế suất</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Đến 5 triệu</td><td>5%</td></tr>
+          <tr><td>2</td><td>Trên 5 đến 10 triệu</td><td>10%</td></tr>
+          <tr><td>3</td><td>Trên 10 đến 18 triệu</td><td>15%</td></tr>
+          <tr><td>4</td><td>Trên 18 đến 32 triệu</td><td>20%</td></tr>
+          <tr><td>5</td><td>Trên 32 đến 52 triệu</td><td>25%</td></tr>
+          <tr><td>6</td><td>Trên 52 đến 80 triệu</td><td>30%</td></tr>
+          <tr><td>7</td><td>Trên 80 triệu</td><td>35%</td></tr>
+        </tbody>
+      </table>
+      <p><strong>2026 (từ 01/01/2026):</strong></p>
+      <table class="tax-table">
+        <thead><tr><th>Bậc</th><th>Thu nhập tính thuế/tháng</th><th>Thuế suất</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Đến 10 triệu</td><td>5%</td></tr>
+          <tr><td>2</td><td>Trên 10 đến 30 triệu</td><td>10%</td></tr>
+          <tr><td>3</td><td>Trên 30 đến 60 triệu</td><td>20%</td></tr>
+          <tr><td>4</td><td>Trên 60 đến 100 triệu</td><td>30%</td></tr>
+          <tr><td>5</td><td>Trên 100 triệu</td><td>35%</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4. Cách tự quyết toán thuế Online</h3>
+      <ol>
+        <li>Chuẩn bị hồ sơ số:
+          <ul>
+            <li>Chứng từ khấu trừ thuế TNCN.</li>
+            <li>Thư xác nhận thu nhập (tổng lương thưởng năm).</li>
+          </ul>
+        </li>
+        <li>Truy cập: canhan.gdt.gov.vn, đăng nhập bằng MST+ mật khẩu hoặc VNeID mức 2.</li>
+        <li>Kê khai trực tuyến: Quyết toán thuế → Kê khai trực tuyến → mẫu 02/QTT-TNCN.
+          <br />Chọn cơ quan thuế làm nơi quyết toán (nơi làm/ hoặc nơi cư trú nếu nghỉ việc).
+        </li>
+        <li>Điền tờ khai:
+          <ul>
+            <li>[23] Tổng thu nhập chịu thuế.</li>
+            <li>[28],[29],[30] Các khoản giảm trừ: bản thân, phụ thuộc, BH bắt buộc.</li>
+            <li>[37] Thuế TNCN đã khấu trừ.</li>
+          </ul>
+        </li>
+        <li>Hoàn tất và gửi:
+          <ul>
+            <li>Nếu [44] dương: nộp thêm.</li>
+            <li>Nếu [45] dương: hoàn thuế (cần số tài khoản ngân hàng).</li>
+          </ul>
+          <p>Ấn "Kết xuất XML" → Nộp tờ khai.</p>
+        </li>
+      </ol>
+
+      <h3>5. Mốc thời gian 2026</h3>
+      <ul>
+        <li>Hạn chót nộp hồ sơ nếu phải nộp thêm: 04/05/2026 (ngày lễ 30/04-01/05).</li>
+        <li>Hạn chót nộp hồ sơ hoàn thuế: không giới hạn.</li>
+      </ul>
+
+      <h3>6. Liên kết hỗ trợ</h3>
+      <ul>
+        <li>Cổng Thuế cá nhân: <a href="https://canhan.gdt.gov.vn" target="_blank">canhan.gdt.gov.vn</a></li>
+        <li>eTax Mobile Android: Google Play</li>
+        <li>eTax Mobile iOS: App Store</li>
+        <li>Tra cứu MST: <a href="https://tracuunnt.gdt.gov.vn" target="_blank">tracuunnt.gdt.gov.vn</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
